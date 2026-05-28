@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireIQ — FlowZint AI Hackathon 2026 Submission</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f6ff;
+    --white: #ffffff;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --dark: #0a0a1a;
+    --mid: #3a3a5c;
+    --muted: #8888aa;
+    --green: #22c55e;
+    --border: #e8e7f5;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--dark); font-family:'DM Sans',sans-serif; line-height:1.6; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1030 60%, #0f0a2a 100%);
+    padding: 80px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content:'';
+    position:absolute; top:-100px; left:50%; transform:translateX(-50%);
+    width:700px; height:700px;
+    background:radial-gradient(circle, rgba(108,99,255,.25) 0%, transparent 65%);
+    pointer-events:none;
+  }
+  .hero-badge {
+    display:inline-block;
+    background:rgba(108,99,255,.2);
+    border:1px solid rgba(108,99,255,.4);
+    color:#a78bfa;
+    padding:6px 18px;
+    border-radius:20px;
+    font-size:.8rem;
+    font-weight:500;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    margin-bottom:28px;
+  }
+  .hero h1 {
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:clamp(2.4rem,6vw,4rem);
+    color:white;
+    letter-spacing:-2px;
+    line-height:1.05;
+    margin-bottom:20px;
+  }
+  .hero h1 span {
+    background:linear-gradient(135deg,#6c63ff,#a78bfa,#ff6b6b);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .hero-sub {
+    color:rgba(255,255,255,.55);
+    font-size:1.1rem;
+    font-weight:300;
+    max-width:520px;
+    margin:0 auto 40px;
+  }
+  .hero-meta {
+    display:flex; justify-content:center; gap:32px; flex-wrap:wrap;
+    color:rgba(255,255,255,.4); font-size:.85rem;
+  }
+  .hero-meta strong { color:rgba(255,255,255,.8); }
+
+  /* ── LAYOUT ── */
+  .page { max-width:860px; margin:0 auto; padding:0 24px; }
+
+  section { padding:60px 0; }
+  section + section { border-top:1px solid var(--border); }
+
+  .section-label {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.75rem; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+    color:var(--accent); margin-bottom:12px;
+  }
+  .section-label::before { content:''; width:20px; height:2px; background:var(--accent); }
+
+  h2 {
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size:clamp(1.6rem,3.5vw,2.2rem); letter-spacing:-1px;
+    color:var(--dark); margin-bottom:16px;
+  }
+  .lead { font-size:1.05rem; color:var(--mid); font-weight:300; max-width:640px; line-height:1.7; }
+
+  /* ── PROBLEM ── */
+  .stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:32px; }
+  @media(max-width:600px){ .stat-row { grid-template-columns:1fr; } }
+  .stat-card {
+    background:var(--white); border:1px solid var(--border); border-radius:16px;
+    padding:24px; text-align:center;
+  }
+  .stat-num {
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size:2.4rem; letter-spacing:-2px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+  .stat-desc { font-size:.85rem; color:var(--muted); margin-top:4px; }
+
+  /* ── SOLUTION ── */
+  .feature-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:32px; }
+  @media(max-width:600px){ .feature-grid { grid-template-columns:1fr; } }
+  .feature-card {
+    background:var(--white); border:1px solid var(--border); border-radius:14px; padding:24px;
+  }
+  .feature-icon { font-size:1.8rem; margin-bottom:12px; }
+  .feature-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:6px; }
+  .feature-desc { font-size:.88rem; color:var(--muted); line-height:1.6; }
+
+  /* ── FLOW ── */
+  .flow { display:flex; flex-direction:column; gap:0; margin-top:32px; }
+  .flow-step {
+    display:flex; gap:20px; align-items:flex-start; position:relative; padding-bottom:28px;
+  }
+  .flow-step:last-child { padding-bottom:0; }
+  .flow-step:not(:last-child)::after {
+    content:''; position:absolute; left:19px; top:40px; bottom:0; width:2px;
+    background:linear-gradient(to bottom,var(--accent),transparent);
+  }
+  .step-num {
+    width:40px; height:40px; flex-shrink:0;
+    background:linear-gradient(135deg,var(--accent),#8b83ff);
+    color:white; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-weight:800; font-size:.9rem;
+  }
+  .step-body { padding-top:8px; }
+  .step-title { font-family:'Syne',sans-serif; font-weight:700; margin-bottom:4px; }
+  .step-desc { font-size:.88rem; color:var(--muted); line-height:1.6; }
+
+  /* ── TECH ── */
+  .tech-chips { display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+  .tech-chip {
+    background:var(--white); border:1px solid var(--border); border-radius:8px;
+    padding:8px 16px; font-size:.85rem; color:var(--mid);
+    display:flex; align-items:center; gap:8px;
+  }
+  .tech-chip span { font-size:1rem; }
+
+  /* ── IMPACT ── */
+  .impact-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:28px; }
+  @media(max-width:600px){ .impact-grid { grid-template-columns:1fr; } }
+  .impact-card {
+    background:linear-gradient(135deg,rgba(108,99,255,.06),rgba(108,99,255,.02));
+    border:1px solid rgba(108,99,255,.15); border-radius:14px; padding:24px;
+  }
+  .impact-label { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--accent); margin-bottom:8px; }
+  .impact-text { font-size:.92rem; color:var(--mid); line-height:1.6; }
+
+  /* ── FOOTER ── */
+  .pitch-footer {
+    background:var(--dark); color:rgba(255,255,255,.5);
+    text-align:center; padding:40px 24px;
+    font-size:.85rem;
+  }
+  .pitch-footer strong { color:white; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">FlowZint AI Hackathon 2026 · Open Innovation</div>
+  <h1>HireIQ<br><span>AI Resume Screener</span></h1>
+  <p class="hero-sub">An intelligent automation system that screens, scores, and ranks candidates against any job description — in seconds.</p>
+  <div class="hero-meta">
+    <div><strong>Category:</strong> Open Innovation</div>
+    <div><strong>Type:</strong> AI Automation System</div>
+    <div><strong>Tech:</strong> Claude AI + Python + Flask</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- PROBLEM -->
+  <section>
+    <div class="section-label">The Problem</div>
+    <h2>Manual resume screening is broken</h2>
+    <p class="lead">
+      Every job posting receives dozens to hundreds of resumes. HR teams spend hours reading each one manually — a slow, inconsistent, and exhausting process that delays hiring and introduces bias.
+    </p>
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-num">23h</div>
+        <div class="stat-desc">Average time spent screening resumes per role</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">250+</div>
+        <div class="stat-desc">Resumes received per corporate job opening</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">88%</div>
+        <div class="stat-desc">Of HR professionals say screening is their biggest bottleneck</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section>
+    <div class="section-label">The Solution</div>
+    <h2>AI that screens faster than any human</h2>
+    <p class="lead">
+      HireIQ uses Claude AI to instantly analyze each resume against the job description — extracting skills, scoring match quality, and ranking every candidate automatically.
+    </p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">AI Match Scoring</div>
+        <div class="feature-desc">Each resume receives a 0–100 match score based on skills, experience, and alignment with the job requirements.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">Skills Gap Analysis</div>
+        <div class="feature-desc">Identifies which required skills each candidate has — and which ones they're missing.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Instant Ranking</div>
+        <div class="feature-desc">Candidates are automatically ranked from best to worst match, saving hours of comparison work.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📧</div>
+        <div class="feature-title">Email Reports</div>
+        <div class="feature-desc">Sends a beautifully formatted shortlist report directly to the HR team's inbox after every analysis.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section>
+    <div class="section-label">How It Works</div>
+    <h2>4 steps, seconds to complete</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Paste the Job Description</div>
+          <div class="step-desc">HR enters the job title and full description — required skills, responsibilities, and qualifications.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Upload PDF Resumes</div>
+          <div class="step-desc">Drag & drop up to 10 PDF resumes at once. The system extracts all text automatically using pdfplumber.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Claude AI Analyzes Each Resume</div>
+          <div class="step-desc">Each resume is sent to Claude AI with the job description. Claude returns a match score, top skills, missing skills, summary, and a Shortlist / Maybe / Reject recommendation.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Ranked Results + Email Report</div>
+          <div class="step-desc">Candidates appear ranked by score with full breakdowns. Optionally, a formatted report is emailed directly to the HR team.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section>
+    <div class="section-label">Technology</div>
+    <h2>Built on modern, scalable tools</h2>
+    <p class="lead">Every component is production-ready and deployable to the cloud in minutes.</p>
+    <div class="tech-chips">
+      <div class="tech-chip"><span>🧠</span> Claude AI (claude-sonnet-4)</div>
+      <div class="tech-chip"><span>🐍</span> Python 3.12</div>
+      <div class="tech-chip"><span>⚗️</span> Flask Web Framework</div>
+      <div class="tech-chip"><span>📄</span> pdfplumber (PDF parsing)</div>
+      <div class="tech-chip"><span>📧</span> SMTP Email (Gmail/SendGrid)</div>
+      <div class="tech-chip"><span>🎨</span> Vanilla HTML/CSS/JS</div>
+      <div class="tech-chip"><span>☁️</span> Render.com (cloud hosting)</div>
+      <div class="tech-chip"><span>🔒</span> Env-var based secret management</div>
+    </div>
+  </section>
+
+  <!-- IMPACT -->
+  <section>
+    <div class="section-label">Impact & Criteria</div>
+    <h2>Why HireIQ wins on every axis</h2>
+    <div class="impact-grid">
+      <div class="impact-card">
+        <div class="impact-label">Innovation & Creativity</div>
+        <div class="impact-text">Combines PDF extraction, AI structured output, and email automation into a seamless single-click workflow — not just a chatbot.</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-label">Real-World Problem Solving</div>
+        <div class="impact-text">Resume screening affects every company that hires. This directly reduces hours of manual HR work with a tool teams can use today.</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-label">AI Automation</div>
+        <div class="impact-text">Zero manual scoring — AI handles extraction, analysis, ranking, and reporting automatically from a single form submission.</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-label">User Experience</div>
+        <div class="impact-text">Drag-and-drop upload, animated loading states, color-coded results, and email reports make the tool feel polished and professional.</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-label">Scalability</div>
+        <div class="impact-text">Deployed on Render.com with Gunicorn. Handles concurrent requests and scales horizontally. API-first design for easy extension.</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-label">Functionality</div>
+        <div class="impact-text">End-to-end working system: PDF → text extraction → AI scoring → ranked UI → email notification. Every feature is live and functional.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="pitch-footer">
+  <strong>HireIQ</strong> · FlowZint AI Hackathon 2026 · Open Innovation Category<br>
+  Powered by Anthropic Claude AI
+</div>
+
+</body>
+</html>
