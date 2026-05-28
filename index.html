@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireIQ — AI Resume Screener</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --card: #1a1a24;
+    --border: #2a2a38;
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --text: #e8e8f0;
+    --muted: #7777a0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+  body::before { content:''; position:fixed; top:-200px; left:-200px; width:600px; height:600px; background:radial-gradient(circle,rgba(108,99,255,.12) 0%,transparent 70%); pointer-events:none; z-index:0; }
+  body::after  { content:''; position:fixed; bottom:-200px; right:-200px; width:500px; height:500px; background:radial-gradient(circle,rgba(255,107,107,.08) 0%,transparent 70%); pointer-events:none; z-index:0; }
+
+  .container { max-width:900px; margin:0 auto; padding:0 24px; position:relative; z-index:1; }
+
+  header { padding:48px 0 32px; text-align:center; }
+  .logo { display:inline-flex; align-items:center; gap:10px; margin-bottom:24px; }
+  .logo-icon { width:40px; height:40px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .logo-text { font-family:'Syne',sans-serif; font-weight:800; font-size:22px; letter-spacing:-.5px; }
+  h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(2rem,5vw,3.2rem); line-height:1.1; letter-spacing:-1.5px; margin-bottom:16px; }
+  h1 span { background:linear-gradient(135deg,var(--accent) 0%,#a78bfa 50%,var(--accent2) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .subtitle { color:var(--muted); font-size:1.05rem; font-weight:300; max-width:480px; margin:0 auto; line-height:1.6; }
+
+  /* Features strip */
+  .features { display:flex; justify-content:center; gap:24px; flex-wrap:wrap; margin-top:24px; }
+  .feature-pill { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:6px 16px; font-size:0.8rem; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .feature-pill span { color:var(--accent); }
+
+  /* Form */
+  .form-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px; margin:40px 0; animation:slideUp .5s ease both; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+  .section-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+  .section-badge { background:rgba(108,99,255,.15); color:var(--accent); border-radius:6px; padding:2px 10px; font-size:0.75rem; }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:600px){ .two-col { grid-template-columns:1fr; } }
+
+  .field-label { display:block; font-family:'Syne',sans-serif; font-weight:600; font-size:0.82rem; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .field-label em { color:var(--accent); font-style:normal; }
+  .field-label small { text-transform:none; letter-spacing:0; font-weight:300; font-family:'DM Sans',sans-serif; }
+
+  input[type="text"], input[type="email"], textarea {
+    width:100%; background:var(--card); border:1px solid var(--border); border-radius:12px;
+    color:var(--text); font-family:'DM Sans',sans-serif; font-size:.95rem; padding:14px 16px;
+    transition:border-color .2s; outline:none; line-height:1.6;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, textarea:focus { border-color:var(--accent); }
+  textarea { resize:vertical; min-height:140px; }
+  input::placeholder, textarea::placeholder { color:var(--muted); }
+
+  .upload-zone { background:var(--card); border:2px dashed var(--border); border-radius:12px; padding:32px; text-align:center; cursor:pointer; transition:all .2s; position:relative; margin-top:4px; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color:var(--accent); background:rgba(108,99,255,.05); }
+  .upload-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
+  .upload-icon { font-size:2rem; margin-bottom:8px; }
+  .upload-text { color:var(--muted); font-size:.9rem; line-height:1.5; }
+  .upload-text strong { color:var(--accent); }
+
+  #file-list { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .file-tag { background:rgba(108,99,255,.15); border:1px solid rgba(108,99,255,.3); border-radius:20px; padding:4px 12px; font-size:.8rem; color:#a78bfa; display:flex; align-items:center; gap:6px; }
+
+  .divider { height:24px; }
+  .hr { height:1px; background:var(--border); margin:28px 0; }
+
+  /* Email section */
+  .email-section { background:rgba(108,99,255,.05); border:1px solid rgba(108,99,255,.15); border-radius:14px; padding:24px; }
+  .toggle-row { display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:0; }
+  .toggle-label { font-family:'Syne',sans-serif; font-weight:600; font-size:.9rem; }
+  .toggle-sub { color:var(--muted); font-size:.82rem; margin-top:2px; }
+  .toggle { width:40px; height:22px; background:var(--border); border-radius:11px; position:relative; transition:background .2s; flex-shrink:0; cursor:pointer; }
+  .toggle.on { background:var(--accent); }
+  .toggle::after { content:''; position:absolute; width:16px; height:16px; background:white; border-radius:50%; top:3px; left:3px; transition:transform .2s; }
+  .toggle.on::after { transform:translateX(18px); }
+  #email-fields { margin-top:20px; display:none; }
+  #email-fields.show { display:block; animation:slideUp .3s ease both; }
+
+  .btn-submit { width:100%; padding:16px; background:linear-gradient(135deg,var(--accent),#8b83ff); color:white; font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; letter-spacing:.3px; border:none; border-radius:12px; cursor:pointer; transition:all .2s; }
+  .btn-submit:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(108,99,255,.4); }
+  .btn-submit:active { transform:translateY(0); }
+  .btn-submit:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+  /* Loading */
+  #loading { display:none; text-align:center; padding:48px 0; animation:fadeIn .3s ease; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .spinner { width:48px; height:48px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 20px; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loading-text { color:var(--muted); font-size:.95rem; }
+  .loading-steps { margin-top:12px; font-size:.85rem; color:var(--accent); }
+
+  /* Email toast */
+  .email-toast { display:flex; align-items:center; gap:10px; padding:12px 16px; border-radius:10px; margin-bottom:20px; font-size:.88rem; }
+  .email-toast.success { background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.25); color:var(--green); }
+  .email-toast.fail { background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.25); color:var(--red); }
+
+  /* Results */
+  #results { display:none; animation:slideUp .5s ease both; }
+  .results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+  .results-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; }
+  .results-count { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:4px 14px; font-size:.85rem; color:var(--muted); }
+  .btn-reset { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 18px; border-radius:8px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:.9rem; transition:all .2s; }
+  .btn-reset:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* Candidate card */
+  .candidate-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:16px; transition:all .2s; animation:slideUp .4s ease both; position:relative; overflow:hidden; }
+  .candidate-card:nth-child(2){animation-delay:.05s} .candidate-card:nth-child(3){animation-delay:.1s} .candidate-card:nth-child(4){animation-delay:.15s}
+  .candidate-card:hover { border-color:rgba(108,99,255,.4); box-shadow:0 4px 20px rgba(0,0,0,.2); }
+  .candidate-card.rank-1::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+
+  .card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; }
+  .candidate-info { flex:1; }
+  .rank-badge { font-family:'Syne',sans-serif; font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:4px; }
+  .rank-badge.gold { color:#fbbf24; }
+  .candidate-name { font-family:'Syne',sans-serif; font-weight:700; font-size:1.15rem; margin-bottom:2px; }
+  .candidate-file { font-size:.8rem; color:var(--muted); }
+
+  .score-circle { width:72px; height:72px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; }
+  .score-num { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; line-height:1; }
+  .score-label { font-size:.6rem; text-transform:uppercase; letter-spacing:.5px; opacity:.7; }
+  .score-high { background:rgba(74,222,128,.12); border:2px solid rgba(74,222,128,.4); color:var(--green); }
+  .score-mid  { background:rgba(251,191,36,.12);  border:2px solid rgba(251,191,36,.4);  color:var(--yellow); }
+  .score-low  { background:rgba(248,113,113,.12); border:2px solid rgba(248,113,113,.4); color:var(--red); }
+
+  .badge-recommend { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.75rem; font-weight:500; margin-bottom:12px; }
+  .badge-shortlist { background:rgba(74,222,128,.15); color:var(--green); border:1px solid rgba(74,222,128,.3); }
+  .badge-maybe     { background:rgba(251,191,36,.15);  color:var(--yellow); border:1px solid rgba(251,191,36,.3); }
+  .badge-reject    { background:rgba(248,113,113,.15); color:var(--red);    border:1px solid rgba(248,113,113,.3); }
+
+  .candidate-summary { font-size:.9rem; color:var(--muted); line-height:1.6; margin-bottom:16px; }
+  .skills-row { display:flex; gap:20px; flex-wrap:wrap; }
+  .skills-group { flex:1; min-width:160px; }
+  .skills-group-label { font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); margin-bottom:8px; }
+  .skill-chips { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { padding:3px 10px; border-radius:6px; font-size:.78rem; }
+  .chip-found   { background:rgba(108,99,255,.12); color:#a78bfa; border:1px solid rgba(108,99,255,.2); }
+  .chip-missing { background:rgba(248,113,113,.08); color:#fca5a5; border:1px solid rgba(248,113,113,.15); }
+  .experience-row { display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:.85rem; color:var(--muted); }
+  .exp-dot { width:6px; height:6px; background:var(--accent); border-radius:50%; }
+
+  .error-msg { background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.3); color:var(--red); border-radius:10px; padding:12px 16px; margin-top:16px; font-size:.9rem; display:none; }
+
+  footer { text-align:center; padding:48px 0 32px; color:var(--muted); font-size:.82rem; border-top:1px solid var(--border); margin-top:60px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      <span class="logo-text">HireIQ</span>
+    </div>
+    <h1>AI-Powered<br><span>Resume Screener</span></h1>
+    <p class="subtitle">Upload resumes, paste a job description, and let AI rank your candidates in seconds.</p>
+    <div class="features">
+      <div class="feature-pill"><span>✦</span> AI Match Scoring</div>
+      <div class="feature-pill"><span>✦</span> Skills Analysis</div>
+      <div class="feature-pill"><span>✦</span> Email Reports</div>
+      <div class="feature-pill"><span>✦</span> Instant Ranking</div>
+    </div>
+  </header>
+
+  <!-- FORM -->
+  <div class="form-card" id="form-section">
+
+    <!-- Step 1: Job Info -->
+    <div class="section-title">
+      <span>01</span>
+      <span style="color:var(--muted)">Job Details</span>
+      <span class="section-badge">Required</span>
+    </div>
+
+    <div class="two-col" style="margin-bottom:16px;">
+      <div>
+        <label class="field-label">Job Title</label>
+        <input type="text" id="job-title" placeholder="e.g. Senior Python Developer">
+      </div>
+      <div>
+        <label class="field-label">Your Name</label>
+        <input type="text" id="hr-name" placeholder="e.g. Priya Sharma">
+      </div>
+    </div>
+
+    <label class="field-label">Job Description <em>*</em></label>
+    <textarea id="job-desc" placeholder="Paste the full job description — required skills, responsibilities, qualifications..."></textarea>
+
+    <div class="hr"></div>
+
+    <!-- Step 2: Resumes -->
+    <div class="section-title">
+      <span>02</span>
+      <span style="color:var(--muted)">Upload Resumes</span>
+      <span class="section-badge">Required</span>
+    </div>
+
+    <div class="upload-zone" id="drop-zone">
+      <input type="file" id="resume-files" accept=".pdf" multiple>
+      <div class="upload-icon">📄</div>
+      <div class="upload-text">
+        <strong>Click to upload</strong> or drag & drop<br>
+        PDF files only · Up to 10 resumes · Max 10MB each
+      </div>
+    </div>
+    <div id="file-list"></div>
+
+    <div class="hr"></div>
+
+    <!-- Step 3: Email -->
+    <div class="section-title">
+      <span>03</span>
+      <span style="color:var(--muted)">Email Report</span>
+      <span class="section-badge" style="background:rgba(74,222,128,.12);color:var(--green);">Optional</span>
+    </div>
+
+    <div class="email-section">
+      <div class="toggle-row" onclick="toggleEmail()">
+        <div>
+          <div class="toggle-label">📧 Send results to my email</div>
+          <div class="toggle-sub">Get a formatted shortlist report after analysis</div>
+        </div>
+        <div class="toggle" id="email-toggle"></div>
+      </div>
+
+      <div id="email-fields">
+        <div style="margin-top:0;">
+          <label class="field-label">Email Address <em>*</em></label>
+          <input type="email" id="notify-email" placeholder="hr@yourcompany.com">
+        </div>
+        <p style="margin-top:10px;font-size:.8rem;color:var(--muted);">
+          ⚙️ Configure SMTP in your <code style="background:var(--card);padding:2px 6px;border-radius:4px;">app.py</code> env vars: <code style="background:var(--card);padding:2px 6px;border-radius:4px;">SMTP_USER</code> and <code style="background:var(--card);padding:2px 6px;border-radius:4px;">SMTP_PASSWORD</code>
+        </p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn-submit" id="analyze-btn" onclick="analyzeResumes()">
+      ✦ Analyze Resumes
+    </button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Analyzing resumes with AI…</div>
+    <div class="loading-steps" id="loading-step">Reading PDFs</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="results-header">
+      <div class="results-title">📊 Ranked Candidates</div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div class="results-count" id="results-count"></div>
+        <button class="btn-reset" onclick="resetForm()">← New Analysis</button>
+      </div>
+    </div>
+    <div id="email-status-bar"></div>
+    <div id="results-list"></div>
+  </div>
+
+  <footer>
+    Built for FlowZint AI Hackathon 2026 &nbsp;·&nbsp; Powered by Claude AI &nbsp;·&nbsp; Open Innovation Category
+  </footer>
+</div>
+
+<script>
+  // ── File picker ──────────────────────────────────────────────────────────
+  const fileInput = document.getElementById('resume-files');
+  const fileList  = document.getElementById('file-list');
+  const dropZone  = document.getElementById('drop-zone');
+
+  fileInput.addEventListener('change', updateFileList);
+  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    fileInput.files = e.dataTransfer.files; updateFileList();
+  });
+
+  function updateFileList() {
+    fileList.innerHTML = Array.from(fileInput.files)
+      .map(f => `<div class="file-tag">📄 ${f.name}</div>`).join('');
+  }
+
+  // ── Email toggle ─────────────────────────────────────────────────────────
+  let emailEnabled = false;
+  function toggleEmail() {
+    emailEnabled = !emailEnabled;
+    document.getElementById('email-toggle').classList.toggle('on', emailEnabled);
+    document.getElementById('email-fields').classList.toggle('show', emailEnabled);
+  }
+
+  // ── Loading animation ────────────────────────────────────────────────────
+  const loadingSteps = ['Reading PDFs…','Extracting text…','Scoring with AI…','Ranking candidates…','Finalizing results…'];
+  let stepIdx = 0, stepTimer;
+  function startLoading() {
+    stepIdx = 0;
+    document.getElementById('loading-step').textContent = loadingSteps[0];
+    stepTimer = setInterval(() => {
+      stepIdx = (stepIdx + 1) % loadingSteps.length;
+      document.getElementById('loading-step').textContent = loadingSteps[stepIdx];
+    }, 2200);
+  }
+  function stopLoading() { clearInterval(stepTimer); }
+
+  // ── Analyze ──────────────────────────────────────────────────────────────
+  async function analyzeResumes() {
+    const jobDesc = document.getElementById('job-desc').value.trim();
+    const files   = fileInput.files;
+    const errEl   = document.getElementById('error-msg');
+    errEl.style.display = 'none';
+
+    if (!jobDesc) { showError('Please paste a job description.'); return; }
+    if (!files.length) { showError('Please upload at least one PDF resume.'); return; }
+
+    const fd = new FormData();
+    fd.append('job_description', jobDesc);
+    fd.append('job_title',  document.getElementById('job-title').value.trim());
+    fd.append('hr_name',    document.getElementById('hr-name').value.trim());
+    if (emailEnabled) fd.append('notify_email', document.getElementById('notify-email').value.trim());
+    for (const f of files) fd.append('resumes', f);
+
+    document.getElementById('form-section').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    startLoading();
+
+    try {
+      const resp = await fetch('/analyze', { method:'POST', body:fd });
+      const data = await resp.json();
+      stopLoading();
+      if (data.error) { showFormWithError(data.error); return; }
+      renderResults(data.results, data.email_status);
+    } catch(e) {
+      stopLoading();
+      showFormWithError('Something went wrong. Please try again.');
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function showFormWithError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('form-section').style.display = 'block';
+    showError(msg);
+  }
+  function resetForm() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('form-section').style.display = 'block';
+  }
+
+  // ── Render ───────────────────────────────────────────────────────────────
+  function scoreClass(s) { return s>=70?'score-high':s>=45?'score-mid':'score-low'; }
+  function badgeClass(r) { return r==='Shortlist'?'badge-shortlist':r==='Maybe'?'badge-maybe':'badge-reject'; }
+
+  function renderResults(results, emailStatus) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results-count').textContent = `${results.length} candidate${results.length!==1?'s':''}`;
+
+    // Email status bar
+    const bar = document.getElementById('email-status-bar');
+    if (emailStatus) {
+      bar.innerHTML = emailStatus.sent
+        ? `<div class="email-toast success">✅ Report emailed successfully!</div>`
+        : `<div class="email-toast fail">⚠️ Email not sent: ${emailStatus.message}. Check your SMTP config.</div>`;
+    } else { bar.innerHTML = ''; }
+
+    document.getElementById('results-list').innerHTML = results.map((r, i) => `
+      <div class="candidate-card ${i===0?'rank-1':''}">
+        <div class="card-top">
+          <div class="candidate-info">
+            <div class="rank-badge ${i===0?'gold':''}">${i===0?'🥇 Top Match':'#'+(i+1)}</div>
+            <div class="candidate-name">${r.name}</div>
+            <div class="candidate-file">${r.filename}</div>
+          </div>
+          <div class="score-circle ${scoreClass(r.match_score)}">
+            <span class="score-num">${r.match_score}</span>
+            <span class="score-label">match</span>
+          </div>
+        </div>
+        <span class="badge-recommend ${badgeClass(r.recommendation)}">${r.recommendation}</span>
+        ${r.experience_years>0?`<div class="experience-row"><div class="exp-dot"></div>${r.experience_years}+ years experience</div>`:''}
+        <p class="candidate-summary">${r.summary}</p>
+        <div class="skills-row">
+          ${r.top_skills?.length?`<div class="skills-group"><div class="skills-group-label">✓ Matched Skills</div><div class="skill-chips">${r.top_skills.map(s=>`<span class="chip chip-found">${s}</span>`).join('')}</div></div>`:''}
+          ${r.missing_skills?.length?`<div class="skills-group"><div class="skills-group-label">✗ Missing Skills</div><div class="skill-chips">${r.missing_skills.map(s=>`<span class="chip chip-missing">${s}</span>`).join('')}</div></div>`:''}
+        </div>
+      </div>`).join('');
+  }
+</script>
+</body>
+</html>
